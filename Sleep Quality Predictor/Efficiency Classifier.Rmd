@@ -1,0 +1,468 @@
+```{r}
+data<-read.csv('Sleep_Efficiency.csv')
+```
+
+```{r}
+library(ggplot2)
+library(vcd)
+library(tidyverse)
+library(ade4)
+library(broom)
+library(rstanarm)
+library(caret)
+library(ggbiplot)
+```
+
+```{r}
+
+ggplot(data, aes(x = Age)) + geom_histogram()
+ggplot(data, aes(x = Age)) + stat_ecdf()
+
+```
+
+```{r}
+ggplot(data, aes(x = Gender)) + geom_bar()
+```
+
+```{r}
+ggplot(data, aes(x = Sleep.duration)) + geom_histogram(bins = 10)+xlab("Sleep duration")
+ggplot(data, aes(x = Sleep.duration)) + stat_ecdf()+xlab("Sleep duration")
+```
+
+```{r}
+ggplot(data, aes(x = REM.sleep.percentage)) + geom_histogram(bins = 10)+xlab("REM sleep percentage")
+ggplot(data, aes(x = REM.sleep.percentage)) + stat_ecdf()+xlab("REM sleep percentage")
+```
+
+```{r}
+ggplot(data, aes(x = data$Deep.sleep.percentage)) + geom_histogram(bins = 10) +xlab("Deep sleep percentage")
+ggplot(data, aes(x = data$Deep.sleep.percentage)) + stat_ecdf()+xlab("Deep sleep percentage")
+```
+
+```{r}
+ggplot(data, aes(x = data$Light.sleep.percentage)) + geom_histogram(bins = 10)+xlab("Light sleep percentage")
+ggplot(data, aes(x = data$Light.sleep.percentage)) + stat_ecdf()+xlab("Light sleep percentage")
+```
+
+```{r}
+ggplot(data, aes(x = Awakenings)) + geom_histogram(bins = 5)
+ggplot(data, aes(x = Awakenings)) + stat_ecdf()
+```
+
+```{r}
+ggplot(data, aes(x = data$Caffeine.consumption)) + geom_histogram(bins = 10)+xlab("Caffeine consumption")
+ggplot(data, aes(x = data$Caffeine.consumption)) + stat_ecdf()
+```
+
+```{r}
+ggplot(data, aes(x = data$Alcohol.consumption)) + geom_histogram(bins = 10) +xlab("Alcohol consumption in mutliples of 30 ml")
+ggplot(data, aes(x = data$Alcohol.consumption)) + stat_ecdf()
+```
+
+```{r}
+ggplot(data, aes(x = data$Sleep_Quality)) + geom_bar()+xlab("Sleep quality")
+```
+
+```{r}
+ggplot(data, aes(x = data$Exercise.frequency)) + geom_histogram(bins = 5) + xlab("Exercise frequency")
+ggplot(data, aes(x = data$Exercise.frequency)) + stat_ecdf()
+
+```
+
+```{r}
+ggplot(data, aes(x = data$Sleep.efficiency)) + geom_histogram(bins = 10)+xlab("Sleep Efficiency")
+ggplot(data, aes(x = data$Sleep.efficiency)) + stat_ecdf()+xlab("Sleep Efficiency")
+```
+
+```{r}
+ggplot(data, aes(x="", y=data$Age))+ 
+  geom_boxplot()+ ylab("Age")
+```
+
+```{r}
+ggplot(data, aes(x="", y=data$Sleep.duration)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(data, aes(x="", y=data$REM.sleep.percentage)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(data, aes(x="", y=Deep.sleep.percentage)) +
+  geom_boxplot() + xlab(" ") + ylab("Deep sleep percentage")
+```
+
+```{r}
+ggplot(data, aes(x="", y=data$Light.sleep.percentage)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(data, aes(x="", y=data$Awakenings)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(data, aes(x="", y=data$Sleep.efficiency)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(data, aes(x="", y=data$Caffeine.consumption)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(data, aes(x="", y=data$Alcohol.consumption)) +
+  geom_boxplot()
+```
+
+```{r}
+ggplot(data, aes(x="", y=data$Exercise.frequency)) +
+  geom_boxplot()
+```
+
+```{r}
+data$Gender[data$Gender == 'Female'] <- 0
+data$Gender[data$Gender == 'Male'] <- 1
+```
+
+```{r}
+data$Smoking.status[data$Smoking.status == 'No'] <- 0
+data$Smoking.status[data$Smoking.status == 'Yes'] <- 1
+```
+
+```{r}
+x <- transform(data,Gender = as.numeric(Gender))  %>% select_if(is.numeric)%>%select(-ID)
+
+```
+
+```{r}
+ggplot(data, aes(x = Awakenings, y=Sleep.efficiency)) +
+  geom_point() + geom_jitter(width = 0.06) + geom_smooth(method = "loess") + xlab("Awakenings") + ylab("Sleep Efficiency")
+
+```
+
+```{r}
+
+res<-cor(x, method = "pearson", use = "complete.obs")
+library(corrplot)
+corrplot(res, type = "upper", order = "hclust", 
+         tl.col = "black", tl.srt = 90)
+
+```
+
+```{r}
+data$age_bins <- cut(data$Age, breaks = seq(0, 100, by = 20), right = FALSE)
+ggplot(data, aes(x = Sleep.duration, y=Sleep.efficiency, color = Gender)) +
+  geom_point() + geom_smooth(method = "loess") + xlab("Sleep Duration")+ylab("Sleep Efficiency")
+
+```
+
+```{r}
+ggplot(data, aes(x = data$Light.sleep.percentage, y=Sleep.efficiency, color = Gender)) +
+  geom_point() + geom_smooth(method = "loess") + xlab("Light sleep percentage") + ylab("Sleep efficiency")
+```
+
+```{r}
+data$Smoking.binary <- as.integer(data$Smoking.status == "1")
+
+```
+
+```{r}
+ggplot(data, aes(x = data$REM.sleep.percentage, y=Sleep.efficiency, color = Gender)) +
+  geom_point() + xlab("REM sleep percentage")+ylab("Sleep Efficiency") + geom_smooth(method = "loess")
+
+```
+
+```{r}
+ggplot(data, aes(x = Deep.sleep.percentage, y=Sleep_Quality, color = Gender)) +
+  geom_point()+ xlab("Deep sleep percentage") + ylab("Sleep Quality") +geom_smooth(method = "loess")
+```
+
+```{r}
+ggplot(data, aes(x = data$Sleep.efficiency, y=data$REM.sleep.percentage)) +
+  geom_point()
+```
+
+```{r}
+ggplot(data, aes(x = data$Awakenings, y=data$Caffeine.consumption, color = Sleep.efficiency)) +
+  geom_point() + geom_jitter()+ geom_smooth(method = "loess") + xlab("Awakenings") + ylab("Caffeine consumption") + labs( col = "Sleep efficiency")
+```
+
+```{r}
+ggplot(data, aes(y = data$Caffeine.consumption, x=data$Smoking.status, color = data$Awakenings)) + ylab("Caffeine consumption")+xlab("Smoking status") +
+  geom_point() + geom_smooth(method = "loess")+ geom_jitter() +labs( col = "Awakenings")
+```
+
+```{r}
+data$Smoking.Caffine.Alcohol = ifelse(data$Smoking.status == "Yes" | (data$Caffeine.consumption != 'NA' & data$Caffeine.consumption > 1) | (data$Alcohol.consumption != 'NA' & data$Alcohol.consumption > 1) , 1, 0)
+```
+
+```{r}
+ggplot(data, aes(x = Sleep.duration, y=Sleep.efficiency, color = Awakenings)) + facet_grid(. ~ Smoking.Caffine.Alcohol)+
+  geom_point()
+```
+
+```{r}
+ggplot(data, aes(x = data$Awakenings, y=data$Sleep.efficiency, color = data$Smoking.Caffine.Alcohol)) +
+  geom_point() + geom_jitter()
+```
+
+```{r}
+mosaic(~ Sleep.duration + Gender, data)
+```
+
+```{r}
+library(lubridate)
+
+# create a datetime object
+data$Bedtime.number <- hour(ymd_hms(data$Bedtime))
+data$Wakeup.time.number <- hour(ymd_hms(data$Wakeup.time))
+
+
+```
+
+```{r}
+ggplot(data, aes(x = Bedtime.number)) + geom_histogram() + xlab("Bedtime in 24h format")
+```
+
+```{r}
+ggplot(data, aes(x = Wakeup.time.number)) + geom_histogram() + xlab("Wakeup time in am format")
+```
+
+```{r}
+ggplot(data, aes(x = data$Bedtime.number, y=data$Sleep.efficiency, color = Sleep_Quality)) +geom_point()  + labs(col = "Sleep quality")+xlab("Bedtime")+ylab("Sleep efficiency")
+```
+
+```{r}
+ggplot(data, aes(x = data$Deep.sleep.percentage, y=data$Sleep.efficiency, color = data$Awakenings)) +
+  geom_point() 
+```
+
+```{r}
+data$Sleep.efficiency. = ifelse(data$Sleep.efficiency > 0.8 , 1, 0)
+```
+
+```{r}
+mosaic(~ Sleep.efficiency. + Gender, data)
+```
+
+```{r}
+mosaic(~ Sleep.efficiency. + Smoking.Caffine.Alcohol, data)
+```
+
+```{r}
+mosaic(~ Exercise.frequency + Sleep.efficiency., data)
+```
+
+```{r}
+ggplot(data = data, aes(x = Exercise.frequency, y = Sleep.efficiency,color=Sleep_Quality)) + 
+  geom_point() + geom_jitter() +geom_smooth(method = "loess") +xlab("Exercise frequency")+ylab("Sleep efficiency")+labs(col = "Sleep quality")
+```
+
+```{r}
+ggplot(data = data, aes(x = data$Exercise.frequency, y = data$Age)) + 
+  geom_point() + geom_jitter()
+```
+
+```{r}
+ggplot(data, aes(x = Awakenings, y=Sleep_Quality, color = Smoking.binary)) +
+  geom_point() + geom_jitter()
+```
+
+```{r}
+ggplot(data, aes(y = Sleep.efficiency, x=data$Alcohol.consumption,color = data$Sleep_Quality)) +
+  geom_point() + geom_jitter() +xlab("Alcohol consumption")+ylab("Sleep efficiency")+labs(col = "Sleep quality") +geom_smooth(method = "loess")
+```
+
+```{r}
+ggplot(data, aes(x = Awakenings, y=Sleep.efficiency, color = Smoking.binary)) +
+  facet_wrap(~Exercise.frequency, ncol = 3) +
+  geom_point() + geom_jitter()
+```
+
+```{r}
+ggplot(data, aes(x = data$Sleep_Quality, y = data$Sleep.efficiency, color = data$Smoking.binary)) +
+  geom_point() +
+  geom_jitter()
+```
+
+```{r}
+mosaic(~ Sleep.efficiency. + Sleep_Quality, data)
+```
+
+### Linear model: With real variables
+
+Removing zero rows with subset of the four columns
+
+```{r}
+data.focus = data[c("Sleep.efficiency", "Sleep.efficiency.", "Sleep_Quality", "Deep.sleep.percentage", "Awakenings", "Smoking.Caffine.Alcohol", "Exercise.frequency")]
+data.focus = na.omit(data.focus)
+```
+
+Model execution and adding the predicted column
+
+```{r}
+sleep.linear.model = lm(Sleep.efficiency ~ Sleep_Quality * Deep.sleep.percentage * Awakenings * Smoking.Caffine.Alcohol * Exercise.frequency, data = data.focus)
+data.focus$linear.se.predicted = sleep.linear.model$fitted.values
+```
+
+Model summary
+
+```{r}
+summary(sleep.linear.model)
+```
+
+Plot for predicated vs real values
+
+```{r}
+ggplot(data.focus, aes(x = Sleep.efficiency, y = linear.se.predicted)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, color = "red") +
+  ggtitle("Linear model actual vs. predicated sleep efficiency") +
+  xlab("Actual") +
+  ylab("Predicted")
+  
+```
+
+Plotting residuals
+
+```{r}
+plot(sleep.linear.model$residuals, ylab = "Residual", xlab = "Instance")
+```
+
+RMSE Value
+
+```{r}
+mse <- mean(sleep.linear.model$residuals^2)
+rmse <- sqrt(mse)
+rmse
+```
+
+Cleaning the complete data and performing PCA
+
+```{r}
+data.clean <- na.omit(data)
+sleep.pca <- prcomp(data.clean[c("Sleep.duration", "Deep.sleep.percentage", "REM.sleep.percentage", "Awakenings", "Exercise.frequency", "Age", "Sleep_Quality", "Light.sleep.percentage", "Smoking.Caffine.Alcohol")], scale. = FALSE)
+```
+
+Biplot without scaling
+
+```{r}
+ggbiplot(sleep.pca, scale = 0)
+```
+
+Extracting PC1 and PC2
+
+```{r}
+PC1 <- sleep.pca$x[, 1]
+PC2 <- sleep.pca$x[, 2]
+
+data.pca <- data.frame(PC1 = PC1, PC2 = PC2, Sleep.efficiency = data.clean$Sleep.efficiency, Sleep.efficiency. = data.clean$Sleep.efficiency., Sleep.quality = data.clean$Sleep_Quality)
+```
+
+### Linear model with PCA
+
+```{r}
+sleep.linear.model.pca = lm(Sleep.efficiency ~ PC1 + PC2, data = data.pca)
+data.pca$linear.se.predicted = sleep.linear.model.pca$fitted.values
+```
+
+Plot for predicted vs real values
+
+```{r}
+ggplot(data.pca, aes(x = Sleep.efficiency, y = linear.se.predicted)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, color = "red") +
+  ggtitle("Linear model actual vs. predicated sleep efficiency with PC1 and PC2") +
+  xlab("Actual") +
+  ylab("Predicted")
+```
+
+Model summary
+
+```{r}
+summary(sleep.linear.model.pca)
+```
+
+Plotting residuals for PCA Linear Model
+
+```{r}
+plot(sleep.linear.model.pca$residuals, ylab = "Residual", xlab = "Instance")
+```
+
+RMSE Value PCA Linear Model
+
+```{r}
+mse <- mean(sleep.linear.model.pca$residuals^2)
+rmse <- sqrt(mse)
+rmse
+```
+
+### Logistic model with real variables
+
+```{r}
+sleep.logistic.model = glm(Sleep.efficiency. ~ Sleep_Quality * Deep.sleep.percentage * Awakenings * Smoking.Caffine.Alcohol * Exercise.frequency, family = binomial, data = data.focus)
+data.focus$logistic.se.predicted = sleep.logistic.model$fitted.values
+```
+
+```{r}
+summary(sleep.logistic.model)
+```
+
+```{r}
+data.focus$logistic.se.predicted.binary = ifelse(data.focus$logistic.se.predicted > 0.5 , 1, 0)
+```
+
+```{r}
+ggplot(data.focus, aes(x = Awakenings, y = logistic.se.predicted)) +
+  geom_point() +
+  geom_jitter() +
+  geom_smooth(method = "glm", method.args= list(family="binomial")) +
+  ylab("Predicted Likelihood for efficiency")
+```
+
+```{r}
+ggplot(data.focus, aes(x = Deep.sleep.percentage, y = logistic.se.predicted)) +
+  geom_point() +
+  geom_jitter() +
+  geom_smooth(method = "glm", method.args= list(family="binomial")) +
+  ylab("Predicted Likelihood for efficiency")
+```
+Creating a Logistic Model with using PCA data
+```{r}
+sleep.logistic.model.pca = glm(Sleep.efficiency. ~ PC1 + PC2, family = binomial, data = data.pca)
+data.pca$logistic.se.predicted = sleep.logistic.model.pca$fitted.values
+```
+
+```{r}
+summary(sleep.logistic.model.pca)
+```
+```{r}
+data.pca$logistic.se.predicted.binary = ifelse(data.pca$logistic.se.predicted > 0.5 , 1, 0)
+
+pred <- factor(data.pca$logistic.se.predicted.binary, levels = c(0, 1))
+actual <- factor(data.pca$Sleep.efficiency., levels = c(0, 1))
+
+# Create a confusion matrix
+confusionMatrix(pred, actual)
+```
+
+```{r}
+ggplot(data.pca, aes(x = PC1, y = logistic.se.predicted)) +
+  geom_point() +
+  geom_jitter() +
+  geom_smooth(method = "glm", method.args= list(family="binomial")) +
+  ylab("Predicted efficiency")
+```
+
+```{r}
+ggplot(data.pca, aes(x = PC2, y = logistic.se.predicted)) +
+  geom_point() +
+  geom_jitter() +
+  geom_smooth(method = "glm", method.args= list(family="binomial")) +
+  ylab("Predicted efficiency")
+```
